@@ -1,1 +1,28 @@
 dataset_dir: data/raw/
+int32_columns:
+- Year
+float32_columns:
+- NA_Sales
+- EU_Sales
+- JP_Sales
+- Other_Sales
+- Global_Sales
+object_columns:
+- Name
+- Platform
+- Genre
+- Publisher
+label: Global_Sales
+predictors:
+- Name
+- Year
+- Platform
+- Genre
+- Publisher
+- NA_Sales
+- EU_Sales
+- JP_Sales
+- Other_Sales
+range_Year:
+- -1
+- 2020
