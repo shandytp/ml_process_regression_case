@@ -30,11 +30,3 @@ def dump_pickle(data, file_path: str) -> None:
 
 params = load_config()
 
-
-# # preprocessing
-# def nan_detector(set_data):
-#     set_data = set_data.copy()
-
-#     set_data.replace(-1, np.nan, inplace = True)
-
-#     return set_data
