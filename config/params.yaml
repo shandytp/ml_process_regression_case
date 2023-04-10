@@ -14,6 +14,10 @@ test_set_path:
 train_feng_set_path: data/processed/X_train_feng.pkl
 valid_feng_set_path: data/processed/X_valid_feng.pkl
 test_feng_set_path: data/processed/X_test_feng.pkl
+training_log_path: log/training_log.json
+
+# debug related
+print_debug: true
 
 # columns features
 cols_drop:
