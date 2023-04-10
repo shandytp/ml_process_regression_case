@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import helper
 import copy
+from sklearn.model_selection import train_test_split
 
 def read_raw_data(config_data_dir: dict, filename: str) -> pd.DataFrame:
     
@@ -18,18 +19,10 @@ def check_data(input_data, params):
     params = copy.deepcopy(params)
     
     # check data types of data
-    assert input_data.select_dtypes("int").columns.to_list() == \
-        params["int32_columns"], "Error terjadi di kolom int32."
     assert input_data.select_dtypes("float").columns.to_list() == \
         params["float32_columns"], "Error terjadi di kolom float32."
-    assert input_data.select_dtypes("object").columns.to_list() == \
-        params["object_columns"], "Error terjadi di kolom object."
 
-    # check range of data
-    assert input_data["Year"].between(params["range_Year"][0], params["range_Year"][1]).sum() == \
-          len(input_data), "Error terjadi di range Year."
-    
-    # range sales
+    # check range sales data
     assert input_data["NA_Sales"].between(params["range_NA_Sales"][0], params["range_NA_Sales"][1]).sum() == \
         len(input_data), "Error terjadi di range NA_Sales."
     assert input_data["EU_Sales"].between(params["range_EU_Sales"][0], params["range_EU_Sales"][1]).sum() == \
@@ -44,26 +37,64 @@ def check_data(input_data, params):
     return "Passed data defense"
 
 if __name__ == "__main__":
+    print("======= START DATA PIPELINE PROCESS =======")
+
     # 1. Load config file
     config_data = helper.load_config()
 
     # 2. Read all raw_dataset
     raw_dataset = read_raw_data(config_data, "vgsales.csv")
 
-    # 3. Save data into pickle
+    # 3. Save raw data into pickle
     helper.dump_pickle(
         raw_dataset,
         config_data["raw_dataset_path"]
     )
 
-    # drop all categories cols
+    # 4. Handling unused cols
+    raw_dataset = raw_dataset.drop(
+        config_data["cols_drop"],
+        axis = 1
+    )
 
-    # 4. Handling year value
-    raw_dataset["Year"] = raw_dataset["Year"].\
-        fillna(-1).astype("int").copy()
+    # 5. Save cleaned raw data into pickle
+    helper.dump_pickle(
+        raw_dataset,
+        config_data["cleaned_raw_dataset_path"]
+    )
     
-    # 5. Check data definition
+    # 6. Check data definition
     check_data(raw_dataset, config_data)
 
-    # 6. Splitting train test
-    X = raw_dataset[config_data["predictors"]]
+    # 7. Splitting input output
+    X = raw_dataset[config_data["predictors"]].copy()
+    y = raw_dataset[config_data["label"]].copy()
+
+    # 8. Splitting train test
+    X_train, X_test, \
+    y_train, y_test = train_test_split(
+        X, y,
+        test_size = 0.2,
+        random_state = 42
+    )
+
+    # 9. Splitting valid test
+    X_valid, X_test, \
+    y_valid, y_test = train_test_split(
+        X_test, y_test,
+        test_size = 0.5,
+        random_state = 42
+    )
+
+    # 10. Save train, valid, and test set
+    helper.dump_pickle(X_train, config_data["train_set_path"][0])
+    helper.dump_pickle(y_train, config_data["train_set_path"][1])
+
+    helper.dump_pickle(X_valid, config_data["valid_set_path"][0])
+    helper.dump_pickle(y_valid, config_data["valid_set_path"][1])
+
+    helper.dump_pickle(X_test, config_data["test_set_path"][0])
+    helper.dump_pickle(y_test, config_data["test_set_path"][1])
+
+    print("======= END DATA PIPELINE PROCESS =======")
+
