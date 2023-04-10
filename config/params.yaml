@@ -1,4 +1,5 @@
-dataset_dir: data/raw/
+raw_dataset_dir: data/raw/
+raw_dataset_path: data/processed/data.pkl
 int32_columns:
 - Year
 float32_columns:
@@ -26,3 +27,18 @@ predictors:
 range_Year:
 - -1
 - 2020
+range_NA_Sales:
+- 0
+- 999
+range_EU_Sales:
+- 0
+- 999
+range_JP_Sales:
+- 0
+- 999
+range_Other_Sales:
+- 0
+- 999
+range_Global_Sales:
+- 0 
+- 999
