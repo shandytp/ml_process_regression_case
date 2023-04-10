@@ -11,6 +11,9 @@ valid_set_path:
 test_set_path:
 - data/processed/X_test.pkl
 - data/processed/y_test.pkl
+train_feng_set_path: data/processed/X_train_feng.pkl
+valid_feng_set_path: data/processed/X_valid_feng.pkl
+test_feng_set_path: data/processed/X_test_feng.pkl
 
 # columns features
 cols_drop:
