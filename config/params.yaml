@@ -1,32 +1,39 @@
+# path related
 raw_dataset_dir: data/raw/
-raw_dataset_path: data/processed/data.pkl
-int32_columns:
+raw_dataset_path: data/processed/raw_data.pkl
+cleaned_raw_dataset_path: data/processed/cleaned_raw_data.pkl
+train_set_path:
+- data/processed/X_train.pkl
+- data/processed/y_train.pkl
+valid_set_path:
+- data/processed/X_valid.pkl
+- data/processed/y_valid.pkl
+test_set_path:
+- data/processed/X_test.pkl
+- data/processed/y_test.pkl
+
+# columns features
+cols_drop:
+- Rank
+- Name
+- Platform
 - Year
+- Genre
+- Publisher
 float32_columns:
 - NA_Sales
 - EU_Sales
 - JP_Sales
 - Other_Sales
 - Global_Sales
-object_columns:
-- Name
-- Platform
-- Genre
-- Publisher
-label: Global_Sales
 predictors:
-- Name
-- Year
-- Platform
-- Genre
-- Publisher
 - NA_Sales
 - EU_Sales
 - JP_Sales
 - Other_Sales
-range_Year:
-- -1
-- 2020
+label: Global_Sales
+
+# range of data
 range_NA_Sales:
 - 0
 - 999
