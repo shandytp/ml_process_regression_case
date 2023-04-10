@@ -29,4 +29,10 @@ def dump_pickle(data, file_path: str) -> None:
     joblib.dump(data, file_path)
 
 params = load_config()
+PRINT_DEBUG = params["print_debug"]
+
+def print_debug(msg: str) -> None:
+    # check if user wants to use print or not
+    if PRINT_DEBUG == True:
+        print(timestamp(), msg)
 
