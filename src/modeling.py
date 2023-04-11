@@ -7,30 +7,29 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.model_selection import RandomizedSearchCV
 
 import json
-from tqdm import tqdm
 import pandas as pd
 import copy 
 import hashlib
 
-import helper
+import helper as helper
 
 def load_train_feng(params: dict) -> pd.DataFrame:
     # Load train set
-    X_train = helper.load_pickle(params["train_feng_set_path"])
+    X_train = helper.load_pickle(params["train_set_path"][0])
     y_train = helper.load_pickle(params["train_set_path"][1])
 
     return X_train, y_train
 
 def load_valid_feng(params: dict) -> pd.DataFrame:
     # Load valid set
-    X_valid = helper.load_pickle(params["valid_feng_set_path"])
+    X_valid = helper.load_pickle(params["valid_set_path"][0])
     y_valid = helper.load_pickle(params["valid_set_path"][1])
 
     return X_valid, y_valid
 
 def load_test_feng(params: dict) -> pd.DataFrame:
     # Load test set
-    X_test = helper.load_pickle(params["test_feng_set_path"])
+    X_test = helper.load_pickle(params["test_set_path"][0])
     y_test = helper.load_pickle(params["test_set_path"][1])
 
     return X_test, y_test
@@ -112,14 +111,13 @@ def create_model_object(params: dict) -> list:
     knn = KNeighborsRegressor()
 
     # Create list of model
-    list_of_model = {
-        "vanilla" : [
+    list_of_model = [
         { "model_name": lr.__class__.__name__, "model_object": lr, "model_uid": ""},
         { "model_name": dct.__class__.__name__, "model_object": dct, "model_uid": ""},
         { "model_name": rfr.__class__.__name__, "model_object": rfr, "model_uid": ""},
         { "model_name": knn.__class__.__name__, "model_object": knn, "model_uid": ""},
-        ]
-    }
+    ]
+    
 
     # Debug message
     helper.print_debug("Model objects created")
@@ -153,8 +151,8 @@ def train_eval(configuration_model: str, params: dict, hyperparams_model: list =
         trained_model = list()
 
         # Load train data based on its configuration
-        X_train_data = X_train[config_data]
-        y_train_data = y_train[config_data]
+        X_train_data = X_train
+        y_train_data = y_train
 
         # Train each model by current dataset configuration
         for model in list_of_model:
@@ -265,8 +263,10 @@ def get_production_model(list_of_model, training_log, params):
             y_pred = prev_production_model["model_data"]["model_object"].predict(X_valid)
 
             # Re-asses prediction result
-            # TODO: fix this
-            eval_res = classification_report(y_valid, y_pred, output_dict = True)
+            # TODO: fix this, ganti pake r2, mse, mae
+            eval_r2 = r2_score(y_valid, y_pred)
+            eval_mse = mean_squared_error(y_valid, y_pred)
+            eval_mae = mean_absolute_error(y_valid, y_pred)
 
             # Debug message
             helper.print_debug("Assessing complete.")
@@ -275,8 +275,9 @@ def get_production_model(list_of_model, training_log, params):
             helper.print_debug("Storing new metrics data to previous model structure.")
 
             # Update their performance log
-            prev_production_model["model_log"]["performance"] = eval_res
-            prev_production_model["model_log"]["f1_score_avg"] = eval_res["macro avg"]["f1-score"]
+            prev_production_model["model_log"]["r2_score"] = eval_r2
+            prev_production_model["model_log"]["mse_score"] = eval_mse
+            prev_production_model["model_log"]["mae_score"] = eval_mae
 
             # Debug message
             helper.print_debug("Adding previous model data to current training log and list of model")
@@ -294,15 +295,15 @@ def get_production_model(list_of_model, training_log, params):
             helper.print_debug("Different features between production model with current dataset is detected, ignoring production dataset.")
 
     # Debug message
-    helper.print_debug("Sorting training log by f1 macro avg and training time.")
+    helper.print_debug("Sorting training log by r2 score and training time.")
 
-    # Sort training log by f1 score macro avg and trining time
+    # Sort training log by r2 score avg and trining time
     best_model_log = training_log.sort_values(["r2_score", "training_time"], ascending = [False, True]).iloc[0]
     
     # Debug message
     helper.print_debug("Searching model data based on sorted training log.")
 
-    # Get model object with greatest f1 score macro avg by using UID
+    # Get model object with greatest r2 score avg by using UID
     for configuration_data in list_of_model:
         for model_data in list_of_model[configuration_data]:
             if model_data["model_uid"] == best_model_log["model_uid"]:
@@ -375,3 +376,32 @@ def hyper_params_tuning(model: dict) -> list:
     
     # Return model object
     return [model_data]
+
+if __name__ == "__main__":
+
+    print("====== START OF MODELING PROCESS ======")
+
+    # 1. Load config file
+    params = helper.load_config()
+
+    # 2. Train and evaluate model
+    list_of_trained_model, training_log = train_eval(
+        "Vanilla",
+        params
+    )
+
+    # 3. Choose the best model for production
+    model, production_model_log, training_log = get_production_model(
+        list_of_trained_model,
+        training_log,
+        params
+    )
+    
+    # 4. Try optimize with hyperparams tuning
+    list_of_trained_model, training_log = train_eval(
+        "Hyperparams_Tuning",
+        params,
+        hyper_params_tuning(model)
+    )
+
+    print("====== END OF MODELING PROCESS ======")
