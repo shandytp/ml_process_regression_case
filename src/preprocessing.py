@@ -90,7 +90,8 @@ if __name__ == "__main__":
         test_set,
         config_data
     )
-
+    
+    # TIDAK BISA DIPAKAI SAAT MODELING, KARENA ADA VALUE INF
     # 4. Transform outlier using log transform
     # 4.1 Train set
     
