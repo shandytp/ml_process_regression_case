@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import helper
+import helper as helper
 import copy
 from sklearn.model_selection import train_test_split
 
@@ -35,6 +35,26 @@ def check_data(input_data, params):
         len(input_data), "Error terjadi di range Global_Sales."
     
     return "Passed data defense"
+
+# for API checking
+
+def check_input_data(input_data, params):
+    input_data = copy.deepcopy(input_data)
+    params = copy.deepcopy(params)
+    
+    # check data types of data
+    assert input_data.select_dtypes("float64").columns.to_list() == \
+        params["predictors"], "Error terjadi di kolom float32."
+
+    # check range sales data
+    assert input_data["NA_Sales"].between(params["range_NA_Sales"][0], params["range_NA_Sales"][1]).sum() == \
+        len(input_data), "Error terjadi di range NA_Sales."
+    assert input_data["EU_Sales"].between(params["range_EU_Sales"][0], params["range_EU_Sales"][1]).sum() == \
+        len(input_data), "Error terjadi di range EU_Sales."
+    assert input_data["JP_Sales"].between(params["range_JP_Sales"][0], params["range_JP_Sales"][1]).sum() == \
+        len(input_data), "Error terjadi di range JP_Sales."
+    assert input_data["Other_Sales"].between(params["range_Other_Sales"][0], params["range_Other_Sales"][1]).sum() == \
+        len(input_data), "Error terjadi di range Other_Sales."
 
 if __name__ == "__main__":
     print("======= START DATA PIPELINE PROCESS =======")
