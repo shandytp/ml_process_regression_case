@@ -33,7 +33,7 @@ def load_dataset(config_data: dict) -> pd.DataFrame:
 
     return train_set, valid_set, test_set
 
-def nan_detector(set_data: pd.DataFrame, params):
+def nan_detector(set_data: pd.DataFrame):
     
     # copy data
     set_data = set_data.copy()
@@ -42,7 +42,7 @@ def nan_detector(set_data: pd.DataFrame, params):
     tmp_res = []
 
     # looping for all cols
-    for col in params["float32_columns"]:
+    for col in config_data["float32_columns"]:
         count = set_data[col].isnull().sum()
         tmp_res.append(count)
 
@@ -51,12 +51,12 @@ def nan_detector(set_data: pd.DataFrame, params):
     return "Proses nan detector telah selesai"
 
 # tidak wajib
-def log_transform(set_data: pd.DataFrame, params) -> pd.DataFrame:
+def log_transform(set_data: pd.DataFrame) -> pd.DataFrame:
     
     # copy data
     set_data = set_data.copy()
 
-    for col in params["predictors"]:
+    for col in config_data["predictors"]:
         # transform using log
         set_data[col] = np.log(set_data[col])
 
@@ -74,45 +74,27 @@ if __name__ == "__main__":
 
     # 3. Check nan values
     # 3.1. Train data
-    nan_detector(
-        train_set,
-        config_data
-    )
+    nan_detector(train_set)
 
     # 3.2. Valid data
-    nan_detector(
-        valid_set,
-        config_data
-    )
+    nan_detector(valid_set)
 
     # 3.3. Test data
-    nan_detector(
-        test_set,
-        config_data
-    )
+    nan_detector(test_set)
     
     # TIDAK BISA DIPAKAI SAAT MODELING, KARENA ADA VALUE INF
     # 4. Transform outlier using log transform
     # 4.1 Train set
     
-    X_train_feng = log_transform(
-        train_set,
-        config_data
-    )
+    X_train_feng = log_transform(train_set)
 
     # 4.2 Validation set
 
-    X_valid_feng = log_transform(
-        valid_set,
-        config_data
-    )
+    X_valid_feng = log_transform(valid_set)
 
     # 4.3 Test set
 
-    X_test_feng = log_transform(
-        test_set,
-        config_data
-    )
+    X_test_feng = log_transform(test_set)
 
     # 5. Save new data into pickle
     helper.dump_pickle(
