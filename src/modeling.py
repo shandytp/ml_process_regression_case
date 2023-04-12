@@ -13,21 +13,21 @@ import hashlib
 
 import helper as helper
 
-def load_train_feng(params: dict) -> pd.DataFrame:
+def load_train(params: dict) -> pd.DataFrame:
     # Load train set
     X_train = helper.load_pickle(params["train_set_path"][0])
     y_train = helper.load_pickle(params["train_set_path"][1])
 
     return X_train, y_train
 
-def load_valid_feng(params: dict) -> pd.DataFrame:
+def load_valid(params: dict) -> pd.DataFrame:
     # Load valid set
     X_valid = helper.load_pickle(params["valid_set_path"][0])
     y_valid = helper.load_pickle(params["valid_set_path"][1])
 
     return X_valid, y_valid
 
-def load_test_feng(params: dict) -> pd.DataFrame:
+def load_test(params: dict) -> pd.DataFrame:
     # Load test set
     X_test = helper.load_pickle(params["test_set_path"][0])
     y_test = helper.load_pickle(params["test_set_path"][1])
@@ -39,13 +39,13 @@ def load_dataset(params: dict) -> pd.DataFrame:
     helper.print_debug("Loading dataset...")
 
     # Load train set
-    X_train, y_train = load_train_feng(params)
+    X_train, y_train = load_train(params)
 
     # Load valid set
-    X_valid, y_valid = load_valid_feng(params)
+    X_valid, y_valid = load_valid(params)
 
     # Load test set
-    X_test, y_test = load_test_feng(params)
+    X_test, y_test = load_test(params)
 
     # debug message
     helper.print_debug("Dataset loaded.")
@@ -137,6 +137,7 @@ def train_eval(configuration_model: str, params: dict, hyperparams_model: list =
     training_log = training_log_template()
 
     # Training for every data configuration
+    # TODO: pahami bagian sini
     for config_data in X_train:
         # Debug message
         helper.print_debug(f"Training model based on configuration data: {config_data}")
@@ -241,7 +242,7 @@ def get_production_model(list_of_model, training_log, params):
     if prev_production_model != None:
         # Debug message
         helper.print_debug("Loading validation data.")
-        X_valid, y_valid = load_valid_feng(params)
+        X_valid, y_valid = load_valid(params)
         
         # Debug message
         helper.print_debug("Checking compatibilty previous production model's input with current train data's features.")
